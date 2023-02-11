@@ -11,7 +11,9 @@ export const LanguageSelector = component$(() => {
     );
   }
 
-  const changeLanguage = $((e: any) => context.changeLanguage(e.target.value));
+  const changeLanguage = $((e: any) =>
+    context.t.changeLanguage(e.target.value)
+  );
 
   return (
     <label for="select" class="language-switcher">

@@ -25,7 +25,6 @@ import "./global.css";
 export default component$(() => {
   const i18nStore = useStore<I18nContextValue>({
     language: defaultLanguage,
-    changeLanguage: $(() => {}),
     t: {},
   });
 
@@ -50,12 +49,37 @@ export default component$(() => {
       getUserLanguage();
 
       // STEP 2: Actualizamos el método que habíamos dejado vació arriba
-      i18nStore.changeLanguage = $((lang: string) => {
-        if (supportedLanguages.includes(lang)) {
-          i18nStore.language = lang;
-          localStorage.setItem("language", lang);
-        }
-      });
+      i18nStore.t = {
+        changeLanguage: $((lang: string) => {
+          if (supportedLanguages.includes(lang)) {
+            i18nStore.language = lang;
+            localStorage.setItem("language", lang);
+          }
+        }),
+        translate: $((key: string | number, count?: number) => {
+          let keys = key.toString().split(".");
+          let value: any = translations[i18nStore.language];
+          for (let i = 0; i < keys.length; i++) {
+            if (value && value.hasOwnProperty(keys[i])) {
+              value = value[keys[i]];
+            } else {
+              return "";
+            }
+          }
+          if (
+            typeof count === "number" &&
+            value.hasOwnProperty(count === 1 ? "one" : "other")
+          ) {
+            value = value[count === 1 ? "one" : "other"];
+          } else if (value.hasOwnProperty("one")) {
+            value = value["one"];
+          }
+          if (typeof value === "string" && count) {
+            return value.replace("{count}", count.toString());
+          }
+          return value;
+        }),
+      };
     });
 
     useTask$(({ track }) => {
@@ -63,6 +87,12 @@ export default component$(() => {
       track(() => i18nStore.language);
       // STEP 3: Actualizamos el archivo de las traducciones siempre que cambiemos el idioma
       i18nStore.t = {
+        changeLanguage: $((lang: string) => {
+          if (supportedLanguages.includes(lang)) {
+            i18nStore.language = lang;
+            localStorage.setItem("language", lang);
+          }
+        }),
         translate: $((key: string | number, count?: number) => {
           let keys = key.toString().split(".");
           let value: any = translations[i18nStore.language];
@@ -91,7 +121,7 @@ export default component$(() => {
       // Return cleanup function in case `value` property changes before time is up.
       // El hook también proporciona una función de limpieza que se ejecutaría en caso de que la propiedad "value" cambie antes de que la tarea se complete. Sin embargo, en este caso, la función de limpieza está vacía.
       return () => {
-        i18nStore.t = { translate: $(() => "") };
+        i18nStore.t = { changeLanguage: $(() => ""), translate: $(() => "") };
       };
     });
   };
