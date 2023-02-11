@@ -18,7 +18,7 @@ import {
   supportedLanguages,
   translations,
 } from "./context/i18n-settings";
-import { I18nContextValue } from "./context/types";
+import type { I18nContextValue } from "./context/types";
 
 import "./global.css";
 
@@ -57,10 +57,10 @@ export default component$(() => {
           }
         }),
         translate: $((key: string | number, count?: number) => {
-          let keys = key.toString().split(".");
+          const keys = key.toString().split(".");
           let value: any = translations[i18nStore.language];
           for (let i = 0; i < keys.length; i++) {
-            if (value && value.hasOwnProperty(keys[i])) {
+            if (value && Object.prototype.hasOwnProperty.call(value, keys[i])) {
               value = value[keys[i]];
             } else {
               return "";
@@ -68,10 +68,13 @@ export default component$(() => {
           }
           if (
             typeof count === "number" &&
-            value.hasOwnProperty(count === 1 ? "one" : "other")
+            Object.prototype.hasOwnProperty.call(
+              value,
+              count === 1 ? "one" : "other"
+            )
           ) {
             value = value[count === 1 ? "one" : "other"];
-          } else if (value.hasOwnProperty("one")) {
+          } else if (Object.prototype.hasOwnProperty.call(value, "one")) {
             value = value["one"];
           }
           if (typeof value === "string" && count) {
@@ -93,11 +96,12 @@ export default component$(() => {
             localStorage.setItem("language", lang);
           }
         }),
+
         translate: $((key: string | number, count?: number) => {
-          let keys = key.toString().split(".");
+          const keys = key.toString().split(".");
           let value: any = translations[i18nStore.language];
           for (let i = 0; i < keys.length; i++) {
-            if (value && value.hasOwnProperty(keys[i])) {
+            if (value && Object.prototype.hasOwnProperty.call(value, keys[i])) {
               value = value[keys[i]];
             } else {
               return "";
@@ -105,10 +109,13 @@ export default component$(() => {
           }
           if (
             typeof count === "number" &&
-            value.hasOwnProperty(count === 1 ? "one" : "other")
+            Object.prototype.hasOwnProperty.call(
+              value,
+              count === 1 ? "one" : "other"
+            )
           ) {
             value = value[count === 1 ? "one" : "other"];
-          } else if (value.hasOwnProperty("one")) {
+          } else if (Object.prototype.hasOwnProperty.call(value, "one")) {
             value = value["one"];
           }
           if (typeof value === "string" && count) {
